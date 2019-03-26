@@ -1,0 +1,5 @@
+{ "company" :  {"id" :  "001", "company_type" : "software",  "name" :  "test name 1", "website":  "http://www.testname1.com", "date_created":  1553194982, "date_updated":  1553194982}}
+{ "company" :  {"id" :  "002", "company_type" : "software",  "name" :  "test name 2", "website":  "http://www.testname2.com", "date_created":  1553194982, "date_updated":  1553194982}}
+{ "company" :  {"id" :  "003", "company_type" : "hardware",  "name" :  "test name 3", "website":  "http://www.testname3.com", "date_created":  1553194982, "date_updated":  1553194982}}
+{ "company" :  {"id" :  "004", "company_type" : "hardware",  "name" :  "test name 4", "website":  "http://www.testname4.com", "date_created":  1553194982, "date_updated":  1553194982}}
+{ "company" :  {"id" :  "005", "company_type" : "consulting",  "name" :  "test name 5", "website":  "http://www.testname5.com", "date_created":  1553194982, "date_updated":  1553194982}}
