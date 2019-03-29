@@ -58,7 +58,7 @@ public class Floeberg {
         SparkSession spark = SparkSession.builder()
                 .appName("Spark Data")
                 .master("local[*]")
-                .config("spark.driver.memory","8g")
+                .config("spark.driver.memory","100m")
                 .config("spark.eventLog.enabled", "true")
                 .config("spark.eventLog.dir", "target/logs")
                 .getOrCreate();
@@ -66,7 +66,13 @@ public class Floeberg {
         return spark;
     }
 
-    public Dataset<Row>getTestData(int numberOfRows){
-        return getSparkSession().createDataFrame(Company.createNRandomTestData(numberOfRows), Company.class);
+    public Dataset<Company>getTestData(int numberOfRows){
+        return getSparkSession().createDataset(Company.createNRandomTestData(numberOfRows), Company.getEncoder());
+    }
+
+    public Dataset<Row> getTestDataAsRows(int numOfRows) {
+
+        return getSparkSession().createDataFrame(Company.createNRandomTestDataOfRows(numOfRows),
+                                                 Company.getSparkSchema());
     }
 }

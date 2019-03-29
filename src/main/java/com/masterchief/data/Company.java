@@ -4,6 +4,13 @@ package com.masterchief.data;
 
 import org.apache.iceberg.Schema;
 import org.apache.iceberg.types.Types;
+import org.apache.spark.sql.Encoder;
+import org.apache.spark.sql.Encoders;
+import org.apache.spark.sql.Row;
+import org.apache.spark.sql.RowFactory;
+import org.apache.spark.sql.types.DataTypes;
+import org.apache.spark.sql.types.StructField;
+import org.apache.spark.sql.types.StructType;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -172,5 +179,41 @@ public class Company implements Serializable {
         fields.add(Types.NestedField.optional(6, "date_updated", Types.LongType.get()));
 
         return new Schema( fields );
+    }
+
+    public static StructType getSparkSchema() {
+        List<StructField> fields = new ArrayList<>();
+
+        fields.add(DataTypes.createStructField("id", DataTypes.StringType, false));
+        fields.add(DataTypes.createStructField("company_type", DataTypes.StringType, true));
+        fields.add(DataTypes.createStructField("name", DataTypes.StringType, true));
+        fields.add(DataTypes.createStructField("website", DataTypes.StringType, true));
+
+        fields.add(DataTypes.createStructField("date_created", DataTypes.LongType, true));
+        fields.add(DataTypes.createStructField("date_updated", DataTypes.LongType, true));
+
+        return DataTypes.createStructType(fields);
+    }
+
+    static public Encoder<Company> getEncoder() {
+        return Encoders.bean(Company.class);
+    }
+
+    public static List<Row> createNRandomTestDataOfRows( int n) {
+        List<Company> testData = createNRandomTestData(n);
+        List<Row> rows =  new ArrayList<Row>(testData.size());
+
+        // Convert to Row type
+        testData.stream().forEach( c -> {
+            rows.add(RowFactory.create(
+                    c.getId(),
+                    c.getCompany_type(),
+                    c.getName(),
+                    c.getWebsite(),
+                    c.getDate_created(),
+                    c.getDate_updated()
+            ));
+        });
+        return rows;
     }
 }

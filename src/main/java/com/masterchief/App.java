@@ -1,6 +1,7 @@
 package com.masterchief;
 
 
+import com.masterchief.data.Company;
 import org.apache.iceberg.Table;
 import org.apache.iceberg.exceptions.NoSuchTableException;
 import org.apache.spark.sql.Dataset;
@@ -40,7 +41,7 @@ public class App
 
         SparkSession  spark = fb.getSparkSession();
 
-        Dataset<Row> datasetOfRows = fb.getTestData(10);
+        Dataset<Row> datasetOfRows = fb.getTestDataAsRows(10);
 
         // Take a look at the test data...
         datasetOfRows.show();
@@ -51,8 +52,12 @@ public class App
         Dataset<Row> ds = readAsParquet(spark, fileNamePrefix);
 
         // Iceberg...
-        saveInIceberg(ds, companyTable);
+//        saveInIceberg(ds, companyTable);// Didnt Work as after read, it still reads as ID optional
+        saveInIceberg(datasetOfRows, companyTable);
+
         readFromIceberg();
+
+        spark.stop();
     }
 
     private static String getFileNamePrefix() {
@@ -84,7 +89,7 @@ public class App
     }
 
     private static void readFromIceberg() {
-        System.out.println("To be done....");
+        System.out.println("Read To be done....");
 
     }
     private static void saveAsParquet(Dataset<Row> datasetOfRows, String filePrefix) {
@@ -100,7 +105,7 @@ public class App
 
     private static void setupTestDirectories() {
 
-        String[]  dirs = {"target/logs", "target/parquet-out"};
+        String[]  dirs = {"target/logs", "target/parquet-out", "target/data"};
 
         Arrays.asList(dirs).stream().forEach(d -> {
 
