@@ -2,6 +2,9 @@ package com.masterchief.data;
 
 //{ "company" :  {"id" :  "001", "company_type" : "software",  "name" :  "test name 1", "website":  "http://www.testname1.com", "date_created":  1553194982, "date_updated":  1553194982}}
 
+import org.apache.iceberg.Schema;
+import org.apache.iceberg.types.Types;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -144,5 +147,30 @@ public class Company implements Serializable {
         }
 
         return listOfCompanies;
+    }
+
+    public static Schema getIcebergSchema() {
+/*
+        // Attributes
+        private String company_type;
+        private String name;
+        private String website;
+
+        // Metadata
+        private Long date_created;
+        private Long date_updated;
+*/
+
+        List<Types.NestedField> fields = new ArrayList<>();
+
+        fields.add(Types.NestedField.required(1, "id", Types.StringType.get()));
+        fields.add(Types.NestedField.optional(2, "company_type", Types.StringType.get()));
+        fields.add(Types.NestedField.optional(3, "name", Types.StringType.get()));
+        fields.add(Types.NestedField.optional(4, "website", Types.StringType.get()));
+
+        fields.add(Types.NestedField.optional(5, "date_created", Types.LongType.get()));
+        fields.add(Types.NestedField.optional(6, "date_updated", Types.LongType.get()));
+
+        return new Schema( fields );
     }
 }
