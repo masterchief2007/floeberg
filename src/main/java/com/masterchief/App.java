@@ -55,7 +55,7 @@ public class App
 //        saveInIceberg(ds, companyTable);// Didnt Work as after read, it still reads as ID optional
         saveInIceberg(datasetOfRows, companyTable);
 
-        readFromIceberg();
+        readFromIceberg(spark, companyTable);
 
         spark.stop();
     }
@@ -88,8 +88,14 @@ public class App
 
     }
 
-    private static void readFromIceberg() {
+    private static void readFromIceberg(SparkSession spark, Table company) {
         System.out.println("Read To be done....");
+
+        Dataset<Row> ds = spark.read().format("iceberg").load(company.location());
+
+        ds.show();
+
+        System.out.println("Total Rows read from Iceberg = " + ds.count());
 
     }
     private static void saveAsParquet(Dataset<Row> datasetOfRows, String filePrefix) {
