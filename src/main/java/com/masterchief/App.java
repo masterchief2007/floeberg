@@ -7,6 +7,7 @@ import org.apache.iceberg.exceptions.NoSuchTableException;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
+import org.apache.spark.sql.functions;
 
 import java.io.File;
 import java.time.LocalDateTime;
@@ -55,9 +56,39 @@ public class App
 //        saveInIceberg(ds, companyTable);// Didnt Work as after read, it still reads as ID optional
         saveInIceberg(datasetOfRows, companyTable);
 
-        readFromIceberg(spark, companyTable);
+        Dataset<Row> readData= readFromIceberg(spark, companyTable);
+
+        readData = prepareForUpdate( spark, companyTable, readData);
+
+        saveInIceberg(readData, companyTable);
+
+        // SELECT Query on the Updated Data
+        readUpdatedFromIceberg(spark, companyTable);
 
         spark.stop();
+    }
+
+    private static void readUpdatedFromIceberg(SparkSession spark, Table companyTable) {
+
+        System.out.println("---------------------------------------");
+        System.out.println("Querying Iceberg for updated data......");
+        System.out.println("---------------------------------------");
+
+        Dataset<Row> updated= spark.sql("SELECT * FROM iceberg.company where date_updated != 0");
+        System.out.println("Data Read from Iceberg and the updated count is " + updated.count());
+        updated.show();
+    }
+
+    private static Dataset<Row> prepareForUpdate(SparkSession spark, Table companyTable, Dataset<Row> companies) {
+        System.out.println("---------------------------------------");
+        System.out.println("Preparing for update...................");
+        System.out.println("---------------------------------------");
+
+        Dataset<Row> toUpdate = companies.where("date_created=1553842631124L");
+        Dataset<Row> others= companies.except(toUpdate);
+        Dataset<Row> updated= toUpdate.withColumn("date_updated",
+                                            functions.lit( System.currentTimeMillis()));
+        return  others.union (updated);
     }
 
     private static String getFileNamePrefix() {
@@ -78,6 +109,9 @@ public class App
 
     }
 
+    /*
+    Saves Dataset in Parquet by Default (in Iceberg)
+     */
     private static void saveInIceberg(Dataset<Row> datasetOfRows, Table company) {
         System.out.println("Saving same Data in Iceberg ........");
 
@@ -88,7 +122,7 @@ public class App
 
     }
 
-    private static void readFromIceberg(SparkSession spark, Table company) {
+    private static Dataset<Row> readFromIceberg(SparkSession spark, Table company) {
         System.out.println("Read To be done....");
 
         Dataset<Row> ds = spark.read().format("iceberg").load(company.location());
@@ -96,8 +130,21 @@ public class App
         ds.show();
 
         System.out.println("Total Rows read from Iceberg = " + ds.count());
-
+        return ds;
     }
+
+    private static Dataset<Company> readFromIcebergAsCompany(SparkSession spark, Table company) {
+        System.out.println("Read To be done....");
+
+        Dataset<Company> ds = spark.read().format("iceberg").load(company.location()).as(Company.getEncoder());
+
+        ds.show();
+
+        System.out.println("Total Companies read from Iceberg = " + ds.count());
+        return ds;
+    }
+
+
     private static void saveAsParquet(Dataset<Row> datasetOfRows, String filePrefix) {
         System.out.println("Saving data as Parquet file......");
         datasetOfRows.write().format("parquet").save("target/parquet-out/" + filePrefix);
