@@ -67,7 +67,8 @@ public class App
         saveInIceberg(readData, companyTable);
 
         // SELECT Query on the Updated Data
-        readUpdatedFromIceberg(spark, companyTable);
+        // readUpdatedFromIceberg(spark, companyTable); // Didnt work
+        checkUpdated(spark, companyTable);
 
         spark.stop();
     }
@@ -125,6 +126,19 @@ public class App
                 .save(company.location());
 
     }
+
+    private static void checkUpdated(SparkSession spark, Table company) {
+
+        Dataset<Row> ds = readFromIceberg(spark, company);
+        System.out.println("CheckUpdated - Finished Reading.");
+        Dataset<Row> updated= ds.where("date_created=1553842631124L");
+        System.out.println("----------------------------------------------");
+        System.out.println("Number of Records Updated = " + updated.count());
+        System.out.println("----------------------------------------------");
+
+        updated.show();
+    }
+
 
     private static Dataset<Row> readFromIceberg(SparkSession spark, Table company) {
         System.out.println("Read To be done....");
