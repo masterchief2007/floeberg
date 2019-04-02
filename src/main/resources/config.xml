@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<configuration>
+    <header>
+        <result delimiterParsingDisabled="true" forceReloadCheck="true" />
+    </header>
+    <override>
+        <!-- the top line overwrites the next -->
+        <properties fileName="/etc/mw/api_override.properties" config-optional="true" throwExceptionOnMissing="false" config-name="super_override_properties"></properties>
+        <properties fileName="iceberg_config_override.properties" config-optional="true" throwExceptionOnMissing="false" config-name="msproperties"/>
+        <properties fileName="iceberg_config.properties" />
+    </override>
+    <additional>
+        <properties fileName="api_about.properties" config-optional="true" throwExceptionOnMissing="false" config-name="api_about_properties"></properties>
+    </additional>
+</configuration>

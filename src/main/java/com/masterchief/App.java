@@ -2,6 +2,8 @@ package com.masterchief;
 
 
 import com.masterchief.data.Company;
+import com.mw.commons.AWSManager;
+import com.mw.commons.DataLakeConfiguration;
 import org.apache.iceberg.Table;
 import org.apache.iceberg.exceptions.NoSuchTableException;
 import org.apache.spark.sql.Dataset;
@@ -28,6 +30,8 @@ public class App
 
         Table companyTable;
         String fileNamePrefix;
+
+        System.out.println(AWSManager.getInstance().getAwsKey());
 
         fileNamePrefix= getFileNamePrefix();
         setupTestDirectories();
