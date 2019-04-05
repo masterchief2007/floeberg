@@ -17,7 +17,7 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <parquet.version>1.10.0</parquet.version>
-    <iceberg.version>d477de3.dirty</iceberg.version>
+    <iceberg.version>0dbcd5c.dirty</iceberg.version>
     <hadoop.version>3.1.2</hadoop.version>
     <spark.version>2.4.0</spark.version>
     <jackson.version>2.9.8</jackson.version>
