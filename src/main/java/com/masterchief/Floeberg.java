@@ -1,6 +1,8 @@
 package com.masterchief;
 
 import com.masterchief.data.Company;
+import com.mw.commons.AWSManager;
+import com.mw.commons.DataLakeConfiguration;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.iceberg.PartitionSpec;
 import org.apache.iceberg.Schema;
@@ -16,12 +18,36 @@ public class Floeberg {
 
     private Configuration conf;
     private String locationOfTable = "target/data";
+
+    private boolean isS3Based;
+
     private HadoopTables hTables ;
     Schema  companySchema;
 
 
-    public Floeberg() {
-        conf = new Configuration();
+    public Floeberg( boolean isS3Based) {
+        this.isS3Based = isS3Based;
+
+        if(isS3Based) {
+            conf = new Configuration();
+            conf.set("fs.s3a.access.key", AWSManager.getInstance().getAwsKey());
+            conf.set("fs.s3a.secret.key", AWSManager.getInstance().getAwsSecret());
+            conf.set("fs.s3a.endpoint", "s3.eu-west-1.amazonaws.com");
+
+
+
+            conf.set("fs.s3a.fast.upload", "true");
+            conf.set("fs.s3a.fast.upload.buffer", "disk");
+            conf.set("fs.s3a.buffer.dir", "/tmp/hadoop");
+            //Make sure that fs.s3a.connection.maximum is at least larger than fs.s3a.threads.max.
+            conf.set("fs.s3a.threads.max", "10");
+            conf.set("fs.s3a.connection.maximum", "20");
+
+            locationOfTable  = DataLakeConfiguration.getInstance().getString("s3.test.bucket.uri" );
+        }
+        else {
+            conf = new Configuration();
+        }
         hTables = new HadoopTables(conf);
     }
 
@@ -61,8 +87,19 @@ public class Floeberg {
                 .config("spark.driver.memory","100m")
                 .config("spark.eventLog.enabled", "true")
                 .config("spark.eventLog.dir", "target/logs")
+//                .config("fs.s3a.aws.credentials.provider", "org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider")
+//                .config("fs.s3a.endpoint", "s3.eu-west-1.amazonaws.com")
                 .getOrCreate();
 
+        if(this.isS3Based) {
+            spark.sparkContext().hadoopConfiguration().set("fs.s3a.access.key", AWSManager.getInstance().getAwsKey());
+            spark.sparkContext().hadoopConfiguration().set("fs.s3a.secret.key", AWSManager.getInstance().getAwsSecret());
+            spark.sparkContext().hadoopConfiguration().set("fs.s3a.endpoint", "s3.eu-west-1.amazonaws.com");
+            //Make sure that fs.s3a.connection.maximum is at least larger than fs.s3a.threads.max.
+            spark.sparkContext().hadoopConfiguration().set("fs.s3a.threads.max", "20");
+            spark.sparkContext().hadoopConfiguration().set("fs.s3a.connection.maximum", "40");
+
+        }
         return spark;
     }
 

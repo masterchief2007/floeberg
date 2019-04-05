@@ -120,10 +120,10 @@ public class Company implements Serializable {
         c.setId(testId);
 
         c.setName(testId + "-company name");
-        c.setCompany_type("test");
+        c.setCompany_type("test-" + (long)Math.ceil(Math.random()*10)); // test-[0-9]
         c.setWebsite("http://www.test" + testId + ".com");
 
-        Long time = new Long(System.currentTimeMillis());
+        Long time = System.currentTimeMillis();
         c.setDate_created(time);
         c.setDate_updated(0L);
 

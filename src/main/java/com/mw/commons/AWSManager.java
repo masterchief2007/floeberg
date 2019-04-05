@@ -2,6 +2,7 @@ package com.mw.commons;
 
 
 import org.apache.log4j.Logger;
+import sun.tools.java.Environment;
 
 public class AWSManager {
     private static AWSManager _instance = null;
@@ -29,6 +30,7 @@ public class AWSManager {
         awsKey= DataLakeConfiguration.getInstance().getString("awskey");
         awsSecret= DataLakeConfiguration.getInstance().getString("awssecret");
         logger.debug("read the AWS keys...  for env " +  awsEnv);
+
     }
 
     public String getAwsKey(){

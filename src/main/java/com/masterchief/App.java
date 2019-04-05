@@ -3,9 +3,9 @@ package com.masterchief;
 
 import com.masterchief.data.Company;
 import com.mw.commons.AWSManager;
-import com.mw.commons.DataLakeConfiguration;
 import org.apache.iceberg.Table;
 import org.apache.iceberg.exceptions.NoSuchTableException;
+import org.apache.log4j.Logger;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -24,9 +24,13 @@ import java.util.Arrays;
  */
 public class App 
 {
+
+    private static Logger  logger = Logger.getLogger(App.class);
+
     public static void main( String[] args )
     {
-        Floeberg fb = new Floeberg();
+        boolean isS3Based = true;
+        Floeberg fb = new Floeberg(isS3Based);
 
         Table companyTable;
         String fileNamePrefix;
@@ -53,12 +57,14 @@ public class App
         datasetOfRows.printSchema();
 
         // Parquet...
-        saveAsParquet(datasetOfRows, fileNamePrefix);
-        Dataset<Row> ds = readAsParquet(spark, fileNamePrefix);
+        if(!isS3Based) {
+            saveAsParquet(datasetOfRows, fileNamePrefix);
+            Dataset<Row> ds = readAsParquet(spark, fileNamePrefix);
+        }
 
         // Iceberg...
-//        saveInIceberg(ds, companyTable);// Didnt Work as after read, it still reads as ID optional
         saveInIceberg(datasetOfRows, companyTable);
+
 
         Dataset<Row> readData= readFromIceberg(spark, companyTable);
 
@@ -89,10 +95,11 @@ public class App
         System.out.println("Preparing for update...................");
         System.out.println("---------------------------------------");
 
-        Dataset<Row> toUpdate = companies.where("date_created=1553842631124L");
+        Dataset<Row> toUpdate = companies.where("company_type='test-1' ");
+        System.out.println("Companies to be updated of type test-1 = " +  toUpdate.count());
         Dataset<Row> others= companies.except(toUpdate);
-        Dataset<Row> updated= toUpdate.withColumn("date_updated",
-                                            functions.lit( System.currentTimeMillis()));
+        Dataset<Row> updated= toUpdate.withColumn("company_type",
+                                            functions.lit( "test-20"));
         return  others.union (updated);
     }
 
@@ -118,7 +125,7 @@ public class App
     Saves Dataset in Parquet by Default (in Iceberg)
      */
     private static void saveInIceberg(Dataset<Row> datasetOfRows, Table company) {
-        System.out.println("Saving same Data in Iceberg ........");
+        logger.info("Saving Data in Iceberg ........");
 
         datasetOfRows.write()
                 .format("iceberg")
@@ -129,9 +136,13 @@ public class App
 
     private static void checkUpdated(SparkSession spark, Table company) {
 
-        Dataset<Row> ds = readFromIceberg(spark, company);
-        System.out.println("CheckUpdated - Finished Reading.");
-        Dataset<Row> updated= ds.where("date_created=1553842631124L");
+        logger.info("CheckUpdated - Read with Filter.");
+
+        Dataset<Row> updated = readFromIcebergWithCondition(spark, company,
+                "company_type='test-20' and date_updated != " + (System.currentTimeMillis() - 2*1000*60));
+
+        logger.info("CheckUpdated - Finished Reading.");
+
         System.out.println("----------------------------------------------");
         System.out.println("Number of Records Updated = " + updated.count());
         System.out.println("----------------------------------------------");
@@ -139,9 +150,22 @@ public class App
         updated.show();
     }
 
+    private static Dataset<Row> readFromIcebergWithCondition(SparkSession spark, Table company, String conditionExpr) {
+
+        logger.info("Reading DATA from Iceberg based on " + conditionExpr);
+        Dataset<Row> ds = spark.read().format("iceberg").load(company.location()).where(conditionExpr);
+
+        ds.show();
+
+        logger.info("Total Rows read from Iceberg = " + ds.count());
+        return ds;
+    }
+
+
 
     private static Dataset<Row> readFromIceberg(SparkSession spark, Table company) {
-        System.out.println("Read To be done....");
+
+        logger.info("Reading DATA from Iceberg.");
 
         Dataset<Row> ds = spark.read().format("iceberg").load(company.location());
 
