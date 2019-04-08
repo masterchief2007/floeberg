@@ -55,9 +55,12 @@ public class Floeberg {
         companySchema = Company.getIcebergSchema();
         HashMap<String, String> tableProps = new HashMap<String, String>(0);
 
+/*
         PartitionSpec pSpec =  PartitionSpec.builderFor(companySchema)
                 .identity("company_type")    // THe field on which to create Partitions
                 .build();
+*/
+        PartitionSpec pSpec = PartitionSpec.unpartitioned();
 
         Table tbl=  hTables.create(companySchema, pSpec, tableProps, locationOfTable);
 
