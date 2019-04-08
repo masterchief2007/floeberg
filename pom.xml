@@ -12,8 +12,8 @@
   <!-- FIXME change it to the project's website -->
   <url>http://www.example.com</url>
   <scm>
-    <connection>scm:git:https://github.com/masterchief2007/floeberg.git</connection>
-  <scm>
+    <developerConnection>scm:git:https://github.com/masterchief2007/floeberg.git</developerConnection>
+  </scm>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
