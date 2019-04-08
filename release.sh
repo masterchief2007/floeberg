@@ -13,7 +13,7 @@
 
 # CHANGE THESE BEFORE RUNNING THE SCRIPT!
 # The version to be released
-releaseVersion=1.0.0
+releaseVersion=1.0.1
 # The next development version
 developmentVersion=1.1.0-SNAPSHOT
 
