@@ -103,7 +103,7 @@ public class DataLakeConfiguration {
      * created or modified according to a delay specified in reloadingStrategy
      * tag of config.xml.
      *
-     * @param configName
+     * @param configName - Log File Name
      */
     public synchronized void configureLogging(String configName) {
         long delay = 0;
@@ -174,7 +174,7 @@ public class DataLakeConfiguration {
 
     /**
      *
-     * @param configNameAttr
+     * @param configNameAttr - check for this fileName in the configuration
      * @return null if CONFIG_FILE_NAME doesn't contain a node with value
      * configName in attribute "config-name" or file in the attribute "fileName"
      * doesn't exist
@@ -189,9 +189,9 @@ public class DataLakeConfiguration {
     }
     /**
      *
-     * @param configNameAttr
-     * @param combinedListNodes
-     * @return
+     * @param configNameAttr  - Config File Name
+     * @param combinedListNodes - All Aggregated Attributes
+     * @return  - Aggregated Properties
      */
     public CombinedConfiguration getXmlCConfiguration(List<String> configNameAttr, String... combinedListNodes) {
         NodeCombiner combiner = new UnionCombiner();
@@ -210,7 +210,7 @@ public class DataLakeConfiguration {
         return combinedXmlConfiguration;
     }
     /**
-     * [prefix].[prop] -> [prop].
+     * [prefix].[prop] : [prop].
      *
      * @param prefix [prefix]
      * @return all properties with provided prefix
