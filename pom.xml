@@ -11,6 +11,9 @@
   <name>floeberg</name>
   <!-- FIXME change it to the project's website -->
   <url>http://www.example.com</url>
+  <scm>
+    <connection>scm:git:https://github.com/masterchief2007/floeberg.git</connection>
+  <scm>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -196,6 +199,26 @@
         <plugin>
           <artifactId>maven-project-info-reports-plugin</artifactId>
           <version>3.0.0</version>
+        </plugin>
+
+        <plugin>
+          <artifactId>maven-release-plugin</artifactId>
+          <version>2.5.3</version>
+          <configuration>
+            <autoVersionSubmodules>true</autoVersionSubmodules>
+            <!-- Keep changes in the local repo, push will be done afterwards -->
+            <pushChanges>false</pushChanges>
+            <localCheckout>true</localCheckout>
+            <!-- Use a better name for the tag -->
+            <tagNameFormat>v@{project.version}</tagNameFormat>
+          </configuration>
+          <dependencies>
+            <dependency>
+              <groupId>org.apache.maven.scm</groupId>
+              <artifactId>maven-scm-provider-gitexe</artifactId>
+              <version>1.11.2</version>
+            </dependency>
+          </dependencies>
         </plugin>
       </plugins>
     </pluginManagement>
